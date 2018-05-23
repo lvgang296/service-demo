@@ -1,0 +1,55 @@
+debug: true
+mybatis:
+    config-location: classpath:mybatis/mybatis.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+    type-aliases-package: com.springboot.manager.bean
+spring:
+    datasource:
+        connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat,wall,log4j
+        initialSize: 5
+        maxActive: 20
+        maxPoolPreparedStatementPerConnectionSize: 20
+        maxWait: 60000
+        minEvictableIdleTimeMillis: 300000
+        minIdle: 5
+        password: root
+        poolPreparedStatements: true
+        testOnBorrow: true
+        testOnReturn: false
+        testWhileIdle: true
+        timeBetweenEvictionRunsMillis: 60000
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3306/lvgang?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        useGlobalDataSourceStat: true
+        username: root
+        validationQuery: SELECT 1 FROM DUAL
+    #redis配置
+    redis:
+        database: 0
+        host: 127.0.0.1
+        port: 6379
+        password: 1234
+        pool:
+          min-idle: 0
+          max-idle: 8
+          max-wait: 1
+          max-active: 8
+        timeout: 10000
+    profiles:
+        active: test
+thread-pool:
+    initPoolSize: 10
+    maxPoolSize: 200
+    queneCapatity: 10
+#pagehelper
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql
+
+
+
+

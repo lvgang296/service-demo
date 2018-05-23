@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.manager.mapper.MenuMapper">
+  <resultMap id="BaseResultMap" type="com.springboot.manager.bean.Menu">
+    <id column="MENU_ID" jdbcType="BIGINT" property="menuId" />
+    <result column="PARENT_ID" jdbcType="BIGINT" property="parentId" />
+    <result column="MENU_NAME" jdbcType="VARCHAR" property="menuName" />
+    <result column="URL" jdbcType="VARCHAR" property="url" />
+    <result column="ICON" jdbcType="VARCHAR" property="icon" />
+    <result column="TYPE" jdbcType="CHAR" property="type" />
+    <result column="ORDER_NUM" jdbcType="BIGINT" property="orderNum" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.springboot.manager.bean.Menu">
+    <result column="PERMS" jdbcType="LONGVARCHAR" property="perms" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    MENU_ID, PARENT_ID, MENU_NAME, URL, ICON, TYPE, ORDER_NUM, CREATE_TIME, MODIFY_TIME
+  </sql>
+  <sql id="Blob_Column_List">
+    PERMS
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_menu
+    where MENU_ID = #{menuId,jdbcType=BIGINT}
+  </select>
+  <select id="findAllMenu" parameterType="com.springboot.model.dto.MenuDto" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_menu
+    where 1=1
+    <if test="menuId != null">
+      AND MENU_ID = #{menuId,jdbcType=BIGINT}
+    </if>
+    <if test="menuName != null">
+      AND MENU_NAME = #{menuName,jdbcType=VARCHAR}
+    </if>
+    <if test="type != null">
+      AND TYPE = #{type,jdbcType=CHAR}
+    </if>
+  </select>
+  <select id="queryMenuByUserId" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select m.* from t_menu m
+    where m.MENU_ID in
+        (select distinct rm.menu_id from t_role_menu rm
+		left join t_role r on(rm.role_id = r.role_id)
+        left join t_user_role ur on(ur.role_id = r.role_id)
+        where ur.user_id = #{userId})
+    order by m.order_num
+  </select>
+  <select id="queryMenuByRoleId" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select m.* from t_menu m
+    where m.MENU_ID in
+        (select distinct rm.menu_id from t_role_menu rm
+        where rm.role_id = #{roleId})
+    order by m.order_num
+  </select>
+  <delete id="deleteMenus" parameterType="java.util.List">
+    delete from t_menu
+    where MENU_ID in
+    <foreach collection="list" item="menuId" index="index" open="(" close=")" separator=",">
+      #{menuId}
+    </foreach>
+  </delete>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_menu
+    where MENU_ID = #{menuId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.springboot.manager.bean.Menu">
+    <selectKey keyProperty="menuId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_menu (PARENT_ID, MENU_NAME,
+      URL, ICON, TYPE, ORDER_NUM, 
+      CREATE_TIME, MODIFY_TIME, PERMS
+      )
+    values (#{parentId,jdbcType=BIGINT}, #{menuName,jdbcType=VARCHAR},
+      #{url,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, #{type,jdbcType=CHAR}, #{orderNum,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{perms,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.springboot.manager.bean.Menu">
+    <selectKey keyProperty="menuId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_menu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="parentId != null">
+        PARENT_ID,
+      </if>
+      <if test="menuName != null">
+        MENU_NAME,
+      </if>
+      <if test="url != null">
+        URL,
+      </if>
+      <if test="icon != null">
+        ICON,
+      </if>
+      <if test="type != null">
+        TYPE,
+      </if>
+      <if test="orderNum != null">
+        ORDER_NUM,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME,
+      </if>
+      <if test="perms != null">
+        PERMS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="parentId != null">
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="menuName != null">
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=CHAR},
+      </if>
+      <if test="orderNum != null">
+        #{orderNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="perms != null">
+        #{perms,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.springboot.manager.bean.Menu">
+    update t_menu
+    <set>
+      <if test="parentId != null">
+        PARENT_ID = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="menuName != null">
+        MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null">
+        URL = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        ICON = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        TYPE = #{type,jdbcType=CHAR},
+      </if>
+      <if test="orderNum != null">
+        ORDER_NUM = #{orderNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="perms != null">
+        PERMS = #{perms,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where MENU_ID = #{menuId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.springboot.manager.bean.Menu">
+    update t_menu
+    set PARENT_ID = #{parentId,jdbcType=BIGINT},
+      MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      URL = #{url,jdbcType=VARCHAR},
+      ICON = #{icon,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=CHAR},
+      ORDER_NUM = #{orderNum,jdbcType=BIGINT},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      MODIFY_TIME = #{modifyTime,jdbcType=TIMESTAMP},
+      PERMS = #{perms,jdbcType=LONGVARCHAR}
+    where MENU_ID = #{menuId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.springboot.manager.bean.Menu">
+    update t_menu
+    set PARENT_ID = #{parentId,jdbcType=BIGINT},
+      MENU_NAME = #{menuName,jdbcType=VARCHAR},
+      URL = #{url,jdbcType=VARCHAR},
+      ICON = #{icon,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=CHAR},
+      ORDER_NUM = #{orderNum,jdbcType=BIGINT},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      MODIFY_TIME = #{modifyTime,jdbcType=TIMESTAMP}
+    where MENU_ID = #{menuId,jdbcType=BIGINT}
+  </update>
+  <update id="changeToTop" parameterType="java.util.List">
+    update t_menu set parent_id = 0 where menu_id in ( select a.menu_id from (
+    (select menu_id from t_menu where parent_id in
+    <foreach collection="list" item="menuId" index="index" open="(" close=")" separator=",">
+      #{menuId}
+    </foreach>
+    ) ) a )
+  </update>
+</mapper>

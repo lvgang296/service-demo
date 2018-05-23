@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.manager.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="com.springboot.manager.bean.User">
+    <id column="USER_ID" jdbcType="BIGINT" property="userId" />
+    <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="PASSWORD" jdbcType="VARCHAR" property="password" />
+    <result column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
+    <result column="EMAIL" jdbcType="VARCHAR" property="email" />
+    <result column="MOBILE" jdbcType="VARCHAR" property="mobile" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="CRATE_TIME" jdbcType="TIMESTAMP" property="crateTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="LAST_LOGIN_TIME" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="SSEX" jdbcType="CHAR" property="ssex" />
+    <result column="THEME" jdbcType="VARCHAR" property="theme" />
+    <result column="AVATAR" jdbcType="VARCHAR" property="avatar" />
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+  </resultMap>
+  <resultMap id="BaseResultDtoMap" type="com.springboot.model.dto.UserDto">
+    <id column="USER_ID" jdbcType="BIGINT" property="userId" />
+    <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="PASSWORD" jdbcType="VARCHAR" property="password" />
+    <result column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
+    <result column="EMAIL" jdbcType="VARCHAR" property="email" />
+    <result column="MOBILE" jdbcType="VARCHAR" property="mobile" />
+    <result column="STATUS" jdbcType="CHAR" property="status" />
+    <result column="CRATE_TIME" jdbcType="TIMESTAMP" property="crateTime" />
+    <result column="MODIFY_TIME" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="LAST_LOGIN_TIME" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="SSEX" jdbcType="CHAR" property="ssex" />
+    <result column="THEME" jdbcType="VARCHAR" property="theme" />
+    <result column="AVATAR" jdbcType="VARCHAR" property="avatar" />
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    USER_ID, USERNAME, PASSWORD, DEPT_ID, EMAIL, MOBILE, STATUS, CRATE_TIME, MODIFY_TIME, 
+    LAST_LOGIN_TIME, SSEX, THEME, AVATAR, DESCRIPTION
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_user
+    where USER_ID = #{userId,jdbcType=BIGINT}
+  </select>
+  <select id="login" parameterType="com.springboot.manager.bean.User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    where USERNAME = #{username,jdbcType=VARCHAR}
+    AND PASSWORD = #{password,jdbcType=VARCHAR}
+  </select>
+  <select id="queryAllUser" parameterType="com.springboot.model.dto.UserDto" resultType="com.springboot.model.dto.UserDto">
+    select u.user_id userId,u.username,u.password,u.dept_id deptId,u.email,u.mobile,u.status,u.crate_time crateTime,
+    u.modify_time modifyTime,u.last_login_time lastLoginTime,u.theme,u.avatar,u.description,u.ssex,d.dept_name deptName from t_user u
+    left join t_dept d on(u.dept_id = d.dept_id)
+    where 1=1
+    <if test="userId != null">
+      AND USER_ID = #{userId,jdbcType=BIGINT}
+    </if>
+    <if test="username != null and username != ''">
+      AND u.username = #{username}
+    </if>
+    <if test="deptId != null and deptId != ''">
+      AND d.dept_id = #{deptId}
+    </if>
+    <if test="ssex != null and ssex != ''">
+      AND u.ssex = #{ssex}
+    </if>
+    <if test="status != null and status != ''">
+      AND u.status = #{status}
+    </if>
+    order by u.user_id
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_user
+    where USER_ID = #{userId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.springboot.manager.bean.User">
+    <selectKey keyProperty="userId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_user (USERNAME, PASSWORD,
+      DEPT_ID, EMAIL, MOBILE, 
+      STATUS, CRATE_TIME, MODIFY_TIME, 
+      LAST_LOGIN_TIME, SSEX, THEME, 
+      AVATAR, DESCRIPTION)
+    values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{deptId,jdbcType=BIGINT}, #{email,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{crateTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, 
+      #{lastLoginTime,jdbcType=TIMESTAMP}, #{ssex,jdbcType=CHAR}, #{theme,jdbcType=VARCHAR}, 
+      #{avatar,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.springboot.manager.bean.User">
+    <selectKey keyProperty="userId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        USERNAME,
+      </if>
+      <if test="password != null">
+        PASSWORD,
+      </if>
+      <if test="deptId != null">
+        DEPT_ID,
+      </if>
+      <if test="email != null">
+        EMAIL,
+      </if>
+      <if test="mobile != null">
+        MOBILE,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="crateTime != null">
+        CRATE_TIME,
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME,
+      </if>
+      <if test="lastLoginTime != null">
+        LAST_LOGIN_TIME,
+      </if>
+      <if test="ssex != null">
+        SSEX,
+      </if>
+      <if test="theme != null">
+        THEME,
+      </if>
+      <if test="avatar != null">
+        AVATAR,
+      </if>
+      <if test="description != null">
+        DESCRIPTION,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="deptId != null">
+        #{deptId,jdbcType=BIGINT},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="crateTime != null">
+        #{crateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ssex != null">
+        #{ssex,jdbcType=CHAR},
+      </if>
+      <if test="theme != null">
+        #{theme,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.springboot.manager.bean.User">
+    update t_user
+    <set>
+      <if test="username != null">
+        USERNAME = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        PASSWORD = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="deptId != null">
+        DEPT_ID = #{deptId,jdbcType=BIGINT},
+      </if>
+      <if test="email != null">
+        EMAIL = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        MOBILE = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=CHAR},
+      </if>
+      <if test="crateTime != null">
+        CRATE_TIME = #{crateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyTime != null">
+        MODIFY_TIME = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        LAST_LOGIN_TIME = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ssex != null">
+        SSEX = #{ssex,jdbcType=CHAR},
+      </if>
+      <if test="theme != null">
+        THEME = #{theme,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        AVATAR = #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        DESCRIPTION = #{description,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where USER_ID = #{userId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.springboot.manager.bean.User">
+    update t_user
+    set USERNAME = #{username,jdbcType=VARCHAR},
+      PASSWORD = #{password,jdbcType=VARCHAR},
+      DEPT_ID = #{deptId,jdbcType=BIGINT},
+      EMAIL = #{email,jdbcType=VARCHAR},
+      MOBILE = #{mobile,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=CHAR},
+      CRATE_TIME = #{crateTime,jdbcType=TIMESTAMP},
+      MODIFY_TIME = #{modifyTime,jdbcType=TIMESTAMP},
+      LAST_LOGIN_TIME = #{lastLoginTime,jdbcType=TIMESTAMP},
+      SSEX = #{ssex,jdbcType=CHAR},
+      THEME = #{theme,jdbcType=VARCHAR},
+      AVATAR = #{avatar,jdbcType=VARCHAR},
+      DESCRIPTION = #{description,jdbcType=VARCHAR}
+    where USER_ID = #{userId,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.manager.mapper.LogMapper">
+  <resultMap id="BaseResultMap" type="com.springboot.manager.bean.Log">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="TIME" jdbcType="DECIMAL" property="time" />
+    <result column="IP" jdbcType="VARCHAR" property="ip" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="location" jdbcType="VARCHAR" property="location" />
+    <result column="OPERATION" jdbcType="LONGVARCHAR" property="operation" />
+    <result column="METHOD" jdbcType="LONGVARCHAR" property="method" />
+    <result column="PARAMS" jdbcType="LONGVARCHAR" property="params" />
+  </resultMap>
+  <resultMap id="BaseResultDtoMap" type="com.springboot.model.dto.LogDto">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="TIME" jdbcType="DECIMAL" property="time" />
+    <result column="IP" jdbcType="VARCHAR" property="ip" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="location" jdbcType="VARCHAR" property="location" />
+    <result column="OPERATION" jdbcType="LONGVARCHAR" property="operation" />
+    <result column="METHOD" jdbcType="LONGVARCHAR" property="method" />
+    <result column="PARAMS" jdbcType="LONGVARCHAR" property="params" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, USERNAME, TIME, IP, CREATE_TIME, location,OPERATION, METHOD, PARAMS
+  </sql>
+  <select id="findAllLog" parameterType="com.springboot.model.dto.LogDto" resultMap="BaseResultDtoMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_log
+    where 1=1
+    <if test="username != null">
+      AND USERNAME = #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="operation != null">
+      AND OPERATION like CONCAT('%', #{operation,jdbcType=LONGVARCHAR},'%')
+    </if>
+    <if test="beginTime != null">
+      and CREATE_TIME &gt;= #{beginTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="endTime != null">
+      and CREATE_TIME &lt;= #{endTime,jdbcType=TIMESTAMP}
+    </if>
+    order by CREATE_TIME desc
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_log
+    where ID = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_log
+    where ID = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.springboot.manager.bean.Log">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_log (USERNAME, TIME,
+      IP, CREATE_TIME, location, 
+      OPERATION, METHOD, PARAMS
+      )
+    values (#{username,jdbcType=VARCHAR}, #{time,jdbcType=DECIMAL},
+      #{ip,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{location,jdbcType=VARCHAR}, 
+      #{operation,jdbcType=LONGVARCHAR}, #{method,jdbcType=LONGVARCHAR}, #{params,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.springboot.manager.bean.Log">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        USERNAME,
+      </if>
+      <if test="time != null">
+        TIME,
+      </if>
+      <if test="ip != null">
+        IP,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="location != null">
+        location,
+      </if>
+      <if test="operation != null">
+        OPERATION,
+      </if>
+      <if test="method != null">
+        METHOD,
+      </if>
+      <if test="params != null">
+        PARAMS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=DECIMAL},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="location != null">
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        #{operation,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="method != null">
+        #{method,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="params != null">
+        #{params,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.springboot.manager.bean.Log">
+    update t_log
+    <set>
+      <if test="username != null">
+        USERNAME = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        TIME = #{time,jdbcType=DECIMAL},
+      </if>
+      <if test="ip != null">
+        IP = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="location != null">
+        location = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        OPERATION = #{operation,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="method != null">
+        METHOD = #{method,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="params != null">
+        PARAMS = #{params,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.springboot.manager.bean.Log">
+    update t_log
+    set USERNAME = #{username,jdbcType=VARCHAR},
+      TIME = #{time,jdbcType=DECIMAL},
+      IP = #{ip,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      location = #{location,jdbcType=VARCHAR},
+      OPERATION = #{operation,jdbcType=LONGVARCHAR},
+      METHOD = #{method,jdbcType=LONGVARCHAR},
+      PARAMS = #{params,jdbcType=LONGVARCHAR}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.springboot.manager.bean.Log">
+    update t_log
+    set USERNAME = #{username,jdbcType=VARCHAR},
+      TIME = #{time,jdbcType=DECIMAL},
+      IP = #{ip,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      location = #{location,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

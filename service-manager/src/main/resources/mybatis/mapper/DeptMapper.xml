@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springboot.manager.mapper.DeptMapper">
+  <resultMap id="BaseResultMap" type="com.springboot.manager.bean.Dept">
+    <id column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
+    <result column="PARENT_ID" jdbcType="BIGINT" property="parentId" />
+    <result column="DEPT_NAME" jdbcType="VARCHAR" property="deptName" />
+    <result column="ORDER_NUM" jdbcType="BIGINT" property="orderNum" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <resultMap id="BaseResultDtoMap" type="com.springboot.model.dto.DeptDto">
+    <id column="DEPT_ID" jdbcType="BIGINT" property="deptId" />
+    <result column="PARENT_ID" jdbcType="BIGINT" property="parentId" />
+    <result column="DEPT_NAME" jdbcType="VARCHAR" property="deptName" />
+    <result column="ORDER_NUM" jdbcType="BIGINT" property="orderNum" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    DEPT_ID, PARENT_ID, DEPT_NAME, ORDER_NUM, CREATE_TIME
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_dept
+    where DEPT_ID = #{deptId,jdbcType=BIGINT}
+  </select>
+  <select id="findAllDepts" parameterType="com.springboot.model.dto.DeptDto" resultMap="BaseResultDtoMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_dept
+    where 1=1
+    <if test="deptId != null">
+      AND DEPT_ID = #{deptId,jdbcType=BIGINT}
+    </if>
+    <if test="deptName != null">
+      AND DEPT_NAME = #{deptName,jdbcType=VARCHAR}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_dept
+    where DEPT_ID = #{deptId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.springboot.manager.bean.Dept">
+    <selectKey keyProperty="deptId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_dept (PARENT_ID, DEPT_NAME,
+      ORDER_NUM, CREATE_TIME)
+    values (#{parentId,jdbcType=BIGINT}, #{deptName,jdbcType=VARCHAR},
+      #{orderNum,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.springboot.manager.bean.Dept">
+    <selectKey keyProperty="deptId" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into t_dept
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="parentId != null">
+        PARENT_ID,
+      </if>
+      <if test="deptName != null">
+        DEPT_NAME,
+      </if>
+      <if test="orderNum != null">
+        ORDER_NUM,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="parentId != null">
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="deptName != null">
+        #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        #{orderNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.springboot.manager.bean.Dept">
+    update t_dept
+    <set>
+      <if test="parentId != null">
+        PARENT_ID = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="deptName != null">
+        DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        ORDER_NUM = #{orderNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where DEPT_ID = #{deptId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.springboot.manager.bean.Dept">
+    update t_dept
+    set PARENT_ID = #{parentId,jdbcType=BIGINT},
+      DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+      ORDER_NUM = #{orderNum,jdbcType=BIGINT},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+    where DEPT_ID = #{deptId,jdbcType=BIGINT}
+  </update>
+  <update id="changeToTop" parameterType="java.util.List">
+    update t_dept set parent_id = 0 where dept_id in ( select a.dept_id from (
+    (select dept_id from t_dept where parent_id in
+    <foreach collection="list" item="deptId" index="index" open="(" close=")" separator=",">
+      #{deptId}
+    </foreach>
+    ) ) a )
+  </update>
+</mapper>
